@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, HasMany, beforeSave, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, HasMany, ManyToMany, beforeSave, column, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Hash from '@ioc:Adonis/Core/Hash'
 import Recipe from './Recipe'
 
@@ -17,6 +17,9 @@ export default class User extends BaseModel {
     foreignKey: 'user_id',
   })
   public recipes: HasMany<typeof Recipe>
+
+  @manyToMany(() => Recipe)
+  public favoriteRecipes: ManyToMany<typeof Recipe>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
