@@ -1,28 +1,48 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Recipe from 'App/Models/Recipe'
 import RecipeSchema from 'App/Schemas/RecipeSchema'
-import CategoryHelper from 'App/helpers/CategoryHelper'
-import IngredientsHelper from 'App/helpers/IngredientsHelper'
-import UploadHelper from 'App/helpers/UploadHelper'
+import RecipeHelper from 'App/helpers/RecipeHelper'
 
 export default class RecipesController {
+  ////TODO!!!! throw error when user try to mess with recipe that is not their
   public async index () {
-    const recipes = await Recipe.all()
+    const recipes = await RecipeHelper.findAllAndFormat()
     return recipes
   }
 
   public async store ({request, auth, response} : HttpContextContract) {
     const {id: userId} = auth?.user!
+    const validatedRecipeData = await RecipeSchema.validate(request)
+    const file = request.file('image')!
 
-    const {image, categoryName, ingredients, ...validatedRecipeData} = await RecipeSchema.validate(request)
+    const newRecipe = await RecipeHelper.create(userId, validatedRecipeData, file)
 
-    const category = await CategoryHelper.FindOrCreate(categoryName)
-
-    const imageUrl = await UploadHelper.upload(request, 'image', 'recipes')
-
-    const newRecipe = await Recipe.create({...validatedRecipeData, userId, imageUrl, categoryId: category.id})
-    const newIngredients = await IngredientsHelper.createIngredients(ingredients, newRecipe.id)
     response.status(201)
-    return {data: {recipe: newRecipe, ingredients: newIngredients}}
+    return {data: newRecipe}
+  }
+
+  public async show ({request}: HttpContextContract) {
+    const recipeId = request.param('id')
+
+    const recipe = await RecipeHelper.findRecepiById(+recipeId)
+
+    return { data: recipe}
+  }
+
+  public async update ({request, response}:HttpContextContract) {
+    const recipeId = +request.param('id')
+    const validatedData = await RecipeSchema.validate(request)
+
+    await RecipeHelper.update(recipeId, validatedData)
+    response.status(204)
+
+    return
+  }
+
+  public async destroy ({request, auth, response}:HttpContextContract) {
+    const {id: userId} = auth.user!
+    const recipeId = +request.param('id')
+    await RecipeHelper.delete(recipeId, userId)
+    response.status(204)
+    return
   }
 }

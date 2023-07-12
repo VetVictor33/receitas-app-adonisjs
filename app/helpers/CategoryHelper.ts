@@ -11,4 +11,8 @@ export default abstract class CategoryHelper{
     const newCategory = await Category.create({name: formatedName})
     return newCategory
   }
+  public static async findName (id: number): Promise<Category['name'] | undefined> {
+    const category = await Category.findBy('id', id)
+    return category?.name
+  }
 }

@@ -35,10 +35,10 @@ export default class Recipe extends BaseModel {
   public Category: BelongsTo<typeof Category>
 
   @hasMany(() => Ingredient)
-  public ingredients: HasMany<typeof Ingredient>
+  public Ingredients: HasMany<typeof Ingredient>
 
   @hasMany(() => Comment)
-  public comments: HasMany<typeof Comment>
+  public Comments: HasMany<typeof Comment>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

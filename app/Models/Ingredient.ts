@@ -15,7 +15,7 @@ export default class Ingredient extends BaseModel {
   @belongsTo(()=> Recipe, {
     foreignKey: 'recipeId',
   })
-  public recipe: BelongsTo<typeof Recipe>
+  public Recipe: BelongsTo<typeof Recipe>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
