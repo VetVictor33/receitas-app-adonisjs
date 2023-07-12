@@ -25,6 +25,6 @@ Route.group(()=> {
   Route.post('/users/login', 'UsersController.login')
   Route.group(() => {
     Route.resource('/recipes', 'RecipesController').apiOnly()
-    Route.get('/user-recipies', 'RecipesController.showUsersOnly')
+    Route.get('/user-recipes', 'RecipesController.showUsersOnly')
   }).middleware('auth')
 }).prefix('/api')
