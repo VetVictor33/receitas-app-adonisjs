@@ -1,30 +1,27 @@
 import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
-import Recipe from './Recipe'
 import User from './User'
+import Recipe from './Recipe'
 
-export default class Comment extends BaseModel {
+export default class RecipeLike extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public content: string
+  public userId: number
 
   @column()
-  public user_id: number
-
-  @column()
-  public recipe_id: number
+  public recipeId: number
 
   @belongsTo(()=> User, {
-    foreignKey: 'user_id',
+    foreignKey: 'userId',
   })
-  public user: BelongsTo<typeof User>
+  public User: BelongsTo<typeof User>
 
   @belongsTo(()=> Recipe, {
-    foreignKey: 'recipe_id',
+    foreignKey: 'recipeId',
   })
-  public recipe: BelongsTo<typeof Recipe>
+  public Recipe: BelongsTo<typeof Recipe>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

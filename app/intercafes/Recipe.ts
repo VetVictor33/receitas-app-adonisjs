@@ -26,6 +26,11 @@ export interface IformatedRecipe {
   imageUrl: string,
   userName: string,
   ingredients: Iingredient[],
+  metrics: {
+    likes: any;
+    favorites: any;
+    comments: Array<any>
+  }
   createdAt: DateTime,
   updatedAt: DateTime
 }

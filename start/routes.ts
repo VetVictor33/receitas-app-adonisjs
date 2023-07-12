@@ -26,5 +26,11 @@ Route.group(()=> {
   Route.group(() => {
     Route.resource('/recipes', 'RecipesController').apiOnly()
     Route.get('/user-recipes', 'RecipesController.showUsersOnly')
+
+    Route.post('/like/:id', 'InteractionsController.like')
+    Route.delete('/unlike/:id', 'InteractionsController.unlike')
+
+    Route.post('/favorite/:id', 'InteractionsController.favorite')
+    Route.delete('/unfavorite/:id', 'InteractionsController.unfavorite')
   }).middleware('auth')
 }).prefix('/api')
