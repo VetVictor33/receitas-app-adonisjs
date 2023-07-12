@@ -9,8 +9,11 @@ export default class Ingredient extends BaseModel {
   @column()
   public name: string
 
+  @column()
+  public recipeId: number
+
   @belongsTo(()=> Recipe, {
-    foreignKey: 'recipe_id',
+    foreignKey: 'recipeId',
   })
   public recipe: BelongsTo<typeof Recipe>
 

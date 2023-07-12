@@ -21,6 +21,9 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(()=> {
-  Route.post('/users/sign-up', 'UserController.signup')
-  Route.post('/users/login', 'UserController.login')
+  Route.post('/users/sign-up', 'UsersController.signup')
+  Route.post('/users/login', 'UsersController.login')
+  Route.group(() => {
+    Route.resource('/recipes', 'RecipesController').apiOnly()
+  }).middleware('auth')
 }).prefix('/api')

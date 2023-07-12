@@ -9,7 +9,9 @@ export default class Category extends BaseModel {
   @column()
   public name:string
 
-  @hasMany(() => Recipe)
+  @hasMany(() => Recipe,{
+    foreignKey: 'category_id',
+  })
   public recipes: HasMany<typeof Recipe>
 
   @column.dateTime({ autoCreate: true })

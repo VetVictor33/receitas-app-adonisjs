@@ -1,9 +1,9 @@
-import { BaseModel, BelongsTo, HasMany, HasOne, belongsTo, column, hasMany, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
 import Category from './Category'
+import Comment from './Comment'
 import Ingredient from './Ingredient'
 import User from './User'
-import Comment from './Comment'
 
 export default class Recipe extends BaseModel {
   @column({ isPrimary: true })
@@ -19,15 +19,20 @@ export default class Recipe extends BaseModel {
   public imageUrl: string
 
   @column()
-  public user_id: number
+  public userId: number
+
+  @column()
+  public categoryId: number
 
   @belongsTo(()=> User, {
-    foreignKey: 'user_id',
+    foreignKey: 'userId',
   })
   public User: BelongsTo<typeof User>
 
-  @hasOne(() => Category)
-  public category: HasOne<typeof Category>
+  @belongsTo(()=> Category, {
+    foreignKey: 'categoryId',
+  })
+  public Category: BelongsTo<typeof Category>
 
   @hasMany(() => Ingredient)
   public ingredients: HasMany<typeof Ingredient>

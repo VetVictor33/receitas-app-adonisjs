@@ -2,7 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User'
 import UserSchema from 'App/Schemas/UserSchema'
 
-export default class UserController {
+export default class UsersController {
   public async signup ({request, response} : HttpContextContract) {
     const validatedUserData = await UserSchema.validadeSignup(request)
 
