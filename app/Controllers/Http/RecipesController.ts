@@ -3,14 +3,13 @@ import RecipeSchema from 'App/Schemas/RecipeSchema'
 import RecipeHelper from 'App/helpers/RecipeHelper'
 
 export default class RecipesController {
-  ////TODO!!!! throw error when user try to mess with recipe that is not their
   public async index () {
-    const recipes = await RecipeHelper.findAllAndFormat()
+    const recipes = await RecipeHelper.findAllRecepesAndFormat()
     return recipes
   }
 
   public async store ({request, auth, response} : HttpContextContract) {
-    const {id: userId} = auth?.user!
+    const {id: userId} = auth.user!
     const validatedRecipeData = await RecipeSchema.validate(request)
     const file = request.file('image')!
 
@@ -20,19 +19,29 @@ export default class RecipesController {
     return {data: newRecipe}
   }
 
-  public async show ({request}: HttpContextContract) {
-    const recipeId = request.param('id')
+  public async show ({request, auth}: HttpContextContract) {
+    const {id: userId} = auth.user!
+    const recipeId = +request.param('id')
 
-    const recipe = await RecipeHelper.findRecepiById(+recipeId)
+    const recipe = await RecipeHelper.findRecipeById(recipeId, userId)
 
     return { data: recipe}
   }
 
-  public async update ({request, response}:HttpContextContract) {
+  public async showUsersOnly ({auth}: HttpContextContract){
+    const {id: userId} = auth.user!
+
+    const allRecipes = await RecipeHelper.findAllUsersRecipesAndFormat(userId)
+
+    return { data: allRecipes}
+  }
+
+  public async update ({request, auth, response}:HttpContextContract) {
+    const {id: userId} = auth.user!
     const recipeId = +request.param('id')
     const validatedData = await RecipeSchema.validate(request)
 
-    await RecipeHelper.update(recipeId, validatedData)
+    await RecipeHelper.update(recipeId, validatedData, userId)
     response.status(204)
 
     return

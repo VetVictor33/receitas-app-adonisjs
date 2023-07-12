@@ -19,30 +19,29 @@ export default abstract class RecipeHelper {
     const newRecipe = await Recipe.create({...validatedRecipeData, userId, imageUrl, categoryId: category.id})
     await IngredientsHelper.createIngredients(ingredients, newRecipe.id)
 
-    const formatedRecipe = this.formateRecipe(newRecipe)
+    const formatedRecipe = this.formatOne(newRecipe)
 
     return formatedRecipe
   }
 
-  public static async findAllAndFormat (): Promise<Array<IformatedRecipe>> {
+  public static async findAllRecepesAndFormat (): Promise<Array<IformatedRecipe>> {
     const recipes = await Recipe.all()
-
-    const allRecipeis: Array<IformatedRecipe> = []
-    for (const recipe of recipes) {
-      const {id, title, description, imageUrl, createdAt, categoryId, userId, updatedAt} = recipe
-      const ingredients = (await IngredientsHelper.getFormatedRecipeIngredients(recipe))!
-      const category = (await CategoryHelper.findName(categoryId))!
-      const userName = (await UserHelper.findName(userId))!
-
-      const formatedRecipe = {id, title, description, category, imageUrl, userName, ingredients, createdAt, updatedAt}
-      allRecipeis.push(formatedRecipe)
-    }
+    const allRecipeis = await this.formatMany(recipes)
     return allRecipeis
   }
 
-  public static async findRecepiById (id: Recipe['id']): Promise<IformatedRecipe> {
-    const recipe = await Recipe.findByOrFail('id', id)
-    const formatedRecipe = this.formateRecipe(recipe)
+  public static async findAllUsersRecipesAndFormat (userId: User['id']) : Promise<Array<IformatedRecipe>> {
+    const recipes = await Recipe.query().where('user_id', '=', userId)
+    const formatedRecipes = await this.formatMany(recipes)
+    return formatedRecipes
+  }
+
+  public static async findRecipeById (id: Recipe['id'], userId: User['id']): Promise<IformatedRecipe | null> {
+    const recipe = await Recipe.query().where('user_id', '=', userId).where('id', '=', id)
+    if(!recipe[0]) {
+      return null
+    }
+    const formatedRecipe = this.formatOne(recipe[0])
     return formatedRecipe
   }
 
@@ -51,8 +50,13 @@ export default abstract class RecipeHelper {
     return recipe.title
   }
 
-  public static async update (recipe_id: Recipe['id'], newData: IrecipeSchema):Promise<void> {
-    const recipe = await Recipe.findByOrFail('id', recipe_id)
+  public static async update (recipeId: Recipe['id'], newData: IrecipeSchema, userId: User['id']):Promise<void | null> {
+    const recipeArray = await Recipe.query().where('user_id', '=', userId).where('id', '=', recipeId)
+    const recipe = recipeArray[0]
+    if(!recipe) {
+      return null
+    }
+
     await CategoryHelper.FindOrCreate(newData.categoryName)
 
     const newImageUrl = await UploadHelper.upload(newData.image, 'recipes')
@@ -69,7 +73,7 @@ export default abstract class RecipeHelper {
     await recipe[0].delete()
   }
 
-  private static async formateRecipe (recipe: Recipe): Promise<IformatedRecipe> {
+  private static async formatOne (recipe: Recipe): Promise<IformatedRecipe> {
     const {id, title, description, imageUrl, createdAt, updatedAt, categoryId, userId} = recipe
     const ingredients = (await IngredientsHelper.getFormatedRecipeIngredients(recipe))!
     const category = (await CategoryHelper.findName(categoryId))!
@@ -77,5 +81,14 @@ export default abstract class RecipeHelper {
 
     const formatedRecipe = {id, title, description, category, imageUrl, userName, ingredients, createdAt, updatedAt}
     return formatedRecipe
+  }
+
+  private static async formatMany (recipeArray: Array<Recipe>): Promise<Array<IformatedRecipe>> {
+    const allRecipeis: Array<IformatedRecipe> = []
+    for (const recipe of recipeArray) {
+      const formatedRecipe = await this.formatOne(recipe)
+      allRecipeis.push(formatedRecipe)
+    }
+    return allRecipeis
   }
 }
