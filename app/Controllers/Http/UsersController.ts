@@ -21,7 +21,8 @@ export default class UsersController {
     return { data: token.toJSON()}
   }
 
-  public async logout (){
-    //TODO make logout
+  public async logout ({auth} : HttpContextContract){
+    await auth.use('api').revoke()
+    return {revoked: true}
   }
 }

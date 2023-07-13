@@ -15,6 +15,7 @@ export default class RecipesController {
   }
 
   public async store ({request, auth, response} : HttpContextContract) {
+    await auth.use('api').check()
     const {id: userId} = auth.user!
     const validatedRecipeData = await RecipeSchema.validateCreation(request)
     const file = request.file('image')!

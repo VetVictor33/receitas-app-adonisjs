@@ -24,6 +24,7 @@ Route.group(()=> {
   Route.post('/users/sign-up', 'UsersController.signup')
   Route.post('/users/login', 'UsersController.login')
   Route.group(() => {
+    Route.post('/users/logout', 'UsersController.logout')
     Route.resource('/recipes', 'RecipesController').apiOnly()
     Route.group(() => {
       Route.post('/paginate', 'RecipesController.paginatedIndex')
