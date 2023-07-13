@@ -13,4 +13,13 @@ export default class CommentsController {
 
     return {data: comment}
   }
+
+  public async destroy ({request, auth, response} : HttpContextContract) {
+    const {id: userId} = auth.user!
+    const {recipeId, id: commentId} = request.params()
+
+    await CommentsHelper.deleteComment(recipeId, userId, commentId)
+
+    response.status(204)
+  }
 }

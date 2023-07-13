@@ -26,8 +26,9 @@ export default abstract class RecipeHelper {
     return formatedRecipe
   }
 
-  public static async findAllRecepesAndFormat (): Promise<Array<IformatedRecipe>> {
-    const recipes = await Recipe.all()
+  public static async findAllRecepesAndFormat ({pageNumber, recipePerPage}:
+  { pageNumber: number, recipePerPage: number }): Promise<Array<IformatedRecipe>> {
+    const recipes = await Recipe.query().paginate(pageNumber, recipePerPage)
     const allRecipeis = await this.formatMany(recipes)
     return allRecipeis
   }
@@ -35,6 +36,17 @@ export default abstract class RecipeHelper {
   public static async findAllUsersRecipesAndFormat (userId: User['id']) : Promise<Array<IformatedRecipe>> {
     const recipes = await Recipe.query().where('user_id', '=', userId)
     const formatedRecipes = await this.formatMany(recipes)
+    return formatedRecipes
+  }
+
+  public static async findAllUsersFavoriteRecipesAndFormat (userId: User['id']) : Promise<IformatedRecipe[]>{
+    const user = await User.findByOrFail('id', userId)
+    const favoriteRecipes = await user.related('recipes').query().whereHas('FavoriteRecipes', (recipesQuery) => {
+      recipesQuery.where('userId', userId)
+    })
+
+    const formatedRecipes = (await this.formatMany(favoriteRecipes))!
+
     return formatedRecipes
   }
 
@@ -61,6 +73,7 @@ export default abstract class RecipeHelper {
 
     await CategoryHelper.FindOrCreate(newData.categoryName)
 
+    await UploadHelper.delete(recipe.imageUrl)
     const newImageUrl = await UploadHelper.upload(newData.image, 'recipes')
     await IngredientsHelper.update(newData.ingredients, recipe)
 
@@ -70,8 +83,13 @@ export default abstract class RecipeHelper {
 
     recipe.save()
   }
+
   public static async delete (recipe_id: Recipe['id'], user_id: User['id']): Promise<void> {
     const recipe = (await Recipe.query().where('user_id', '=', user_id).where('id', '=', recipe_id))
+    if(!recipe[0]){
+      return
+    }
+    await UploadHelper.delete(recipe[0].imageUrl)
     await recipe[0].delete()
   }
 

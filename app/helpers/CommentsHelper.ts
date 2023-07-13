@@ -21,6 +21,16 @@ export default abstract class CommentsHelper{
     return formatedComment
   }
 
+  public static async deleteComment (
+    recipeId: Recipe['id'], userId: User['id'], commentId: Comment['id']): Promise<void> {
+    const recipe = await Recipe.findByOrFail('id', recipeId)
+    const comment = await recipe.related('Comments').query()
+      .where('recipe_id', '=', recipeId).andWhere('userId', '=', userId).andWhere('id', '=', commentId)
+    if(comment[0]){
+      await comment[0].delete()
+    }
+  }
+
   private static async formatOne (comment: Comment): Promise<IformatedComment> {
     const username = (await UserHelper.findName(comment.userId))!
     const recipeName = (await RecipeHelper.getRecipeTitle(comment.recipeId))!

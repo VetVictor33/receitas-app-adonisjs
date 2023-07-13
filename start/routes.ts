@@ -25,14 +25,18 @@ Route.group(()=> {
   Route.post('/users/login', 'UsersController.login')
   Route.group(() => {
     Route.resource('/recipes', 'RecipesController').apiOnly()
-    Route.get('/user-recipes', 'RecipesController.showUsersOnly')
+    Route.group(() => {
+      Route.post('/paginate', 'RecipesController.paginatedIndex')
+      Route.get('/user-recipes', 'RecipesController.showUsersOnly')
+      Route.get('/user-favorite-recipes', 'RecipesController.showUsersFavoriteRecipes')
 
-    Route.post('/like/:id', 'InteractionsController.like')
-    Route.delete('/unlike/:id', 'InteractionsController.unlike')
+      Route.post('/like/:id', 'InteractionsController.like')
+      Route.delete('/unlike/:id', 'InteractionsController.unlike')
 
-    Route.post('/favorite/:id', 'InteractionsController.favorite')
-    Route.delete('/unfavorite/:id', 'InteractionsController.unfavorite')
+      Route.post('/favorite/:id', 'InteractionsController.favorite')
+      Route.delete('/unfavorite/:id', 'InteractionsController.unfavorite')
 
-    Route.resource('/comment/:recipeId', 'CommentsController').apiOnly()
+      Route.resource('/comment/:recipeId', 'CommentsController').apiOnly()
+    }).prefix('/recipes')
   }).middleware('auth')
 }).prefix('/api')

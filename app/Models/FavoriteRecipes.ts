@@ -1,7 +1,7 @@
-import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
-import User from './User'
+import { DateTime } from 'luxon'
 import Recipe from './Recipe'
+import User from './User'
 
 export default class FavoriteRecipes extends BaseModel {
   @column({ isPrimary: true })

@@ -1,8 +1,8 @@
-import { DateTime } from 'luxon'
-import { BaseModel, HasMany, ManyToMany, beforeSave, column, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Hash from '@ioc:Adonis/Core/Hash'
-import Recipe from './Recipe'
+import { BaseModel, HasMany, beforeSave, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { DateTime } from 'luxon'
 import FavoriteRecipes from './FavoriteRecipes'
+import Recipe from './Recipe'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -18,17 +18,14 @@ export default class User extends BaseModel {
   public password: string
 
   @hasMany(() => Recipe,{
-    foreignKey: 'user_id',
+    foreignKey: 'userId',
   })
   public recipes: HasMany<typeof Recipe>
 
   @hasMany(() => FavoriteRecipes,{
-    foreignKey: 'user_id',
+    foreignKey: 'userId',
   })
-  public favorteRecipes: HasMany<typeof FavoriteRecipes>
-
-  @manyToMany(() => Recipe)
-  public favoriteRecipes: ManyToMany<typeof Recipe>
+  public favoriteRecipes: HasMany<typeof FavoriteRecipes>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

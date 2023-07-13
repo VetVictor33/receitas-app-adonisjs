@@ -4,6 +4,7 @@ import Category from './Category'
 import Comment from './Comment'
 import Ingredient from './Ingredient'
 import User from './User'
+import FavoriteRecipes from './FavoriteRecipes'
 
 export default class Recipe extends BaseModel {
   @column({ isPrimary: true })
@@ -39,6 +40,10 @@ export default class Recipe extends BaseModel {
 
   @hasMany(() => Comment)
   public Comments: HasMany<typeof Comment>
+
+  @hasMany(() => FavoriteRecipes,{
+  })
+  public FavoriteRecipes: HasMany<typeof FavoriteRecipes>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
