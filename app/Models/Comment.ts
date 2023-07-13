@@ -11,18 +11,18 @@ export default class Comment extends BaseModel {
   public content: string
 
   @column()
-  public user_id: number
+  public userId: number
 
   @column()
-  public recipe_id: number
+  public recipeId: number
 
   @belongsTo(()=> User, {
-    foreignKey: 'user_id',
+    foreignKey: 'userId',
   })
   public user: BelongsTo<typeof User>
 
   @belongsTo(()=> Recipe, {
-    foreignKey: 'recipe_id',
+    foreignKey: 'recipeId',
   })
   public recipe: BelongsTo<typeof Recipe>
 

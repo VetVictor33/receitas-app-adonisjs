@@ -32,5 +32,7 @@ Route.group(()=> {
 
     Route.post('/favorite/:id', 'InteractionsController.favorite')
     Route.delete('/unfavorite/:id', 'InteractionsController.unfavorite')
+
+    Route.resource('/comment/:recipeId', 'CommentsController').apiOnly()
   }).middleware('auth')
 }).prefix('/api')

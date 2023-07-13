@@ -7,6 +7,7 @@ import IngredientsHelper from './IngredientsHelper'
 import UploadHelper from './UploadHelper'
 import UserHelper from './UserHelper'
 import InteractionsHelper from './InteractionsHelper'
+import CommentsHelper from './CommentsHelper'
 
 export default abstract class RecipeHelper {
   public static async create (userId: User['id'],
@@ -82,7 +83,7 @@ export default abstract class RecipeHelper {
 
     const likes = (await InteractionsHelper.count('RecipeLike', id))
     const favorites = (await InteractionsHelper.count('RecipeFavorite', id))
-    const comments = ['todo']
+    const comments = (await CommentsHelper.getRecipeAllComments(id))
 
     const formatedRecipe = {id, title, description, category, imageUrl, userName, ingredients,
       metrics: {likes, favorites, comments}, createdAt, updatedAt}
