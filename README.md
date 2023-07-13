@@ -123,6 +123,18 @@
   }
 ```
 
+### Listando receitas criadas pelo usuário
+
+>GET `/api/recipes/user-recipes`
+
+-Retorno esperado: array de receitas
+
+### Listando receitas favoritadas pelo usuário
+
+>GET `/api/recipes/user-favorite-recipes`
+
+-Retorno: idem anterior
+
 ### Listando um receita pelo id
 
 >GET `/api/recipes/:recipeId`
