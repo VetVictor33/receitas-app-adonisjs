@@ -23,6 +23,9 @@ export default class UsersController {
 
   public async logout ({auth} : HttpContextContract){
     await auth.use('api').revoke()
-    return {revoked: true}
+    return {
+      revoked: true,
+      message: 'Logout realizado com sucesso',
+    }
   }
 }
