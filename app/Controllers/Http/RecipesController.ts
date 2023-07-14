@@ -3,14 +3,16 @@ import RecipeSchema from 'App/Schemas/RecipeSchema'
 import RecipeHelper from 'App/helpers/RecipeHelper'
 
 export default class RecipesController {
-  public async index () {
-    const recipes = await RecipeHelper.findAllRecepesAndFormat({pageNumber: 1, recipePerPage: 100})
+  public async index ({auth}) {
+    const {id: userId} = auth.user!
+    const recipes = await RecipeHelper.findAllRecepesAndFormat({pageNumber: 1, recipePerPage: 100}, userId)
     return recipes
   }
 
-  public async paginatedIndex ({request} : HttpContextContract) {
+  public async paginatedIndex ({request, auth} : HttpContextContract) {
+    const {id: userId} = auth.user!
     const validatedPagination = await RecipeSchema.validatePagination(request)
-    const recipes = await RecipeHelper.findAllRecepesAndFormat(validatedPagination)
+    const recipes = await RecipeHelper.findAllRecepesAndFormat(validatedPagination, userId)
     return recipes
   }
 
@@ -23,7 +25,7 @@ export default class RecipesController {
     const newRecipe = await RecipeHelper.create(userId, validatedRecipeData, file)
 
     response.status(201)
-    return {data: newRecipe}
+    return newRecipe
   }
 
   public async show ({request, auth}: HttpContextContract) {
@@ -32,7 +34,7 @@ export default class RecipesController {
 
     const recipe = await RecipeHelper.findRecipeById(recipeId, userId)
 
-    return { data: recipe}
+    return recipe
   }
 
   public async showUsersOnly ({auth}: HttpContextContract){
@@ -40,7 +42,7 @@ export default class RecipesController {
 
     const allRecipes = await RecipeHelper.findAllUsersRecipesAndFormat(userId)
 
-    return { data: allRecipes}
+    return allRecipes
   }
 
   public async showUsersFavoriteRecipes ({auth}: HttpContextContract){
@@ -48,7 +50,7 @@ export default class RecipesController {
 
     const favoriteRecipes = await RecipeHelper.findAllUsersFavoriteRecipesAndFormat(userId)
 
-    return { data: favoriteRecipes}
+    return favoriteRecipes
   }
 
   public async update ({request, auth, response}:HttpContextContract) {

@@ -29,7 +29,9 @@ export interface IformatedRecipe {
   metrics: {
     likes: any;
     favorites: any;
-    comments: Array<any>
+    comments: Array<any>;
+    liked: boolean,
+    favorited: boolean
   }
   createdAt: DateTime,
   updatedAt: DateTime

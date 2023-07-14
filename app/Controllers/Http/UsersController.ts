@@ -6,10 +6,10 @@ export default class UsersController {
   public async signup ({request, response} : HttpContextContract) {
     const validatedUserData = await UserSchema.validadeSignup(request)
 
-    const {id, username, email, createdAt} = await User.create(validatedUserData)
+    await User.create(validatedUserData)
+    response.status(204)
 
-    response.status(201)
-    return {data: {id, username, email, createdAt}}
+    return
   }
 
   public async login ({request, auth} : HttpContextContract) {
@@ -17,8 +17,17 @@ export default class UsersController {
     const token = await auth.attempt(email, password, {
       expiresIn: '24 hours',
     })
+    const {username} = auth.user!
 
-    return { data: token.toJSON()}
+    const data = {
+      token: token.toJSON(),
+      user: {
+        username,
+        email,
+      },
+    }
+
+    return data
   }
 
   public async logout ({auth} : HttpContextContract){

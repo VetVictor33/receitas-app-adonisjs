@@ -11,29 +11,11 @@ export default class InteractionsController {
     return data
   }
 
-  public async unlike ({request, auth} : HttpContextContract) {
-    const {id: userId} = auth.user!
-    const recipeId = request.param('id')
-
-    const data = await InteractionsHelper.do('unlike',userId, recipeId)
-
-    return data
-  }
-
   public async favorite ({request, auth} : HttpContextContract) {
     const {id: userId} = auth.user!
     const recipeId = request.param('id')
 
     const data = await InteractionsHelper.do('favorite',userId, recipeId)
-
-    return data
-  }
-
-  public async unfavorite ({request, auth} : HttpContextContract) {
-    const {id: userId} = auth.user!
-    const recipeId = request.param('id')
-
-    const data = await InteractionsHelper.do('unfavorite',userId, recipeId)
 
     return data
   }

@@ -32,10 +32,7 @@ Route.group(()=> {
       Route.get('/user-favorite-recipes', 'RecipesController.showUsersFavoriteRecipes')
 
       Route.post('/like/:id', 'InteractionsController.like')
-      Route.delete('/unlike/:id', 'InteractionsController.unlike')
-
       Route.post('/favorite/:id', 'InteractionsController.favorite')
-      Route.delete('/unfavorite/:id', 'InteractionsController.unfavorite')
 
       Route.resource('/comment/:recipeId', 'CommentsController').apiOnly()
     }).prefix('/recipes')

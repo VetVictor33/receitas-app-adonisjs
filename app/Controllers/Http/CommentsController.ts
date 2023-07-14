@@ -11,7 +11,7 @@ export default class CommentsController {
 
     const comment = await CommentsHelper.creatComment(recipeId, userId, validatedComment.content)
 
-    return {data: comment}
+    return {comment}
   }
 
   public async destroy ({request, auth, response} : HttpContextContract) {
