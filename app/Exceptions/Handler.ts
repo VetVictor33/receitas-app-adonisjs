@@ -40,7 +40,8 @@ export default class ExceptionHandler extends HttpExceptionHandler {
         return ctx.response.status(400).send({message: 'Credienciais já cadastradas'})
 
       default:
-        return ctx.response.status(500).send({message: 'Internal server error'})
+        // return ctx.response.status(500).send({message: 'Internal server error'})
+        return super.handle(error, ctx)
     }
   }
 }
