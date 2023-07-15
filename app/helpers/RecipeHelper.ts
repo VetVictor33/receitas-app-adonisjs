@@ -26,11 +26,15 @@ export default abstract class RecipeHelper {
     return formatedRecipe
   }
 
-  public static async findAllRecepesAndFormat ({pageNumber, recipePerPage}:
-  { pageNumber: number, recipePerPage: number }, userId: User['id']): Promise<Array<IformatedRecipe>> {
-    const recipes = await Recipe.query().paginate(pageNumber, recipePerPage)
+  public static async findAllRecipesAndFormat ({pageNumber, recipePerPage}:
+  { pageNumber: number, recipePerPage: number }, userId: User['id']){
+    const recipes = (await Recipe.query().paginate(pageNumber, recipePerPage))
+
+    let totalPages = Math.round(((await Recipe.query().paginate(pageNumber, recipePerPage)).total)/recipePerPage)
+    totalPages= totalPages > 0 ? totalPages: 1
+
     const allRecipeis = await this.formatMany(recipes, userId)
-    return allRecipeis
+    return {allRecipeis, totalPages}
   }
 
   public static async findAllUsersRecipesAndFormat (userId: User['id']) : Promise<Array<IformatedRecipe>> {

@@ -5,14 +5,14 @@ import RecipeHelper from 'App/helpers/RecipeHelper'
 export default class RecipesController {
   public async index ({auth}) {
     const {id: userId} = auth.user!
-    const recipes = await RecipeHelper.findAllRecepesAndFormat({pageNumber: 1, recipePerPage: 100}, userId)
+    const recipes = await RecipeHelper.findAllRecipesAndFormat({pageNumber: 1, recipePerPage: 100}, userId)
     return recipes
   }
 
   public async paginatedIndex ({request, auth} : HttpContextContract) {
     const {id: userId} = auth.user!
     const validatedPagination = await RecipeSchema.validatePagination(request)
-    const recipes = await RecipeHelper.findAllRecepesAndFormat(validatedPagination, userId)
+    const recipes = await RecipeHelper.findAllRecipesAndFormat(validatedPagination, userId)
     return recipes
   }
 
