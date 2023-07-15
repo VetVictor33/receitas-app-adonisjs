@@ -40,8 +40,8 @@ export default abstract class RecipeHelper {
   }
 
   public static async findAllUsersFavoriteRecipesAndFormat (userId: User['id']) : Promise<IformatedRecipe[]>{
-    const user = await User.findByOrFail('id', userId)
-    const favoriteRecipes = await user.related('recipes').query().whereHas('FavoriteRecipes', (recipesQuery) => {
+    await User.findByOrFail('id', userId)
+    const favoriteRecipes = await Recipe.query().whereHas('FavoriteRecipes', (recipesQuery) => {
       recipesQuery.where('userId', userId)
     })
 
