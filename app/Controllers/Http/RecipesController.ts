@@ -50,9 +50,9 @@ export default class RecipesController {
     const {id: userId} = auth.user!
 
     const validatedPagination = await RecipeSchema.validatePagination(request)
-    const favoriteRecipes = await RecipeHelper.findAllUsersFavoriteRecipesAndFormat(userId, validatedPagination)
+    const allRecipes = await RecipeHelper.findAllUsersFavoriteRecipesAndFormat(userId, validatedPagination)
 
-    return favoriteRecipes
+    return allRecipes
   }
 
   public async update ({request, auth, response}:HttpContextContract) {
@@ -60,10 +60,9 @@ export default class RecipesController {
     const recipeId = +request.param('id')
     const validatedData = await RecipeSchema.validateCreation(request)
 
-    await RecipeHelper.update(recipeId, validatedData, userId)
-    response.status(204)
+    const newRecipe = await RecipeHelper.update(recipeId, validatedData, userId)
 
-    return
+    return newRecipe
   }
 
   public async destroy ({request, auth, response}:HttpContextContract) {

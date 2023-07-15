@@ -33,8 +33,8 @@ export default abstract class RecipeHelper {
 
     const totalPages = this.getTotalPages(recipes, recipePerPage)
 
-    const allRecipeis = await this.formatMany(recipes, userId)
-    return {allRecipeis, totalPages}
+    const allRecipes = await this.formatMany(recipes, userId)
+    return {allRecipes, totalPages}
   }
 
   public static async findAllUsersRecipesAndFormat (userId: User['id'], {pageNumber, recipePerPage}:
@@ -43,8 +43,8 @@ export default abstract class RecipeHelper {
 
     const totalPages = this.getTotalPages(recipes, recipePerPage)
 
-    const formatedRecipes = await this.formatMany(recipes, userId)
-    return {formatedRecipes, totalPages}
+    const allRecipes = await this.formatMany(recipes, userId)
+    return {allRecipes, totalPages}
   }
 
   public static async findAllUsersFavoriteRecipesAndFormat (userId: User['id'], {pageNumber, recipePerPage}:
@@ -56,9 +56,9 @@ export default abstract class RecipeHelper {
 
     const totalPages = this.getTotalPages(favoriteRecipes, recipePerPage)
 
-    const formatedRecipes = (await this.formatMany(favoriteRecipes, userId))!
+    const allRecipes = (await this.formatMany(favoriteRecipes, userId))!
 
-    return {formatedRecipes, totalPages}
+    return {allRecipes, totalPages}
   }
 
   public static async findRecipeById (id: Recipe['id'], userId: User['id']): Promise<IformatedRecipe | null> {
@@ -75,7 +75,7 @@ export default abstract class RecipeHelper {
     return recipe.title
   }
 
-  public static async update (recipeId: Recipe['id'], newData: IrecipeSchema, userId: User['id']):Promise<void | null> {
+  public static async update (recipeId: Recipe['id'], newData: IrecipeSchema, userId: User['id']) {
     const recipeArray = await Recipe.query().where('user_id', '=', userId).where('id', '=', recipeId)
     const recipe = recipeArray[0]
     if(!recipe) {
@@ -93,6 +93,10 @@ export default abstract class RecipeHelper {
     recipe.imageUrl = newImageUrl
 
     recipe.save()
+
+    const formatedRecipe = await this.formatOne(recipe, userId)
+
+    return formatedRecipe
   }
 
   public static async delete (recipe_id: Recipe['id'], user_id: User['id']): Promise<void> {
