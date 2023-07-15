@@ -8,6 +8,7 @@ import UploadHelper from './UploadHelper'
 import UserHelper from './UserHelper'
 import InteractionsHelper from './InteractionsHelper'
 import CommentsHelper from './CommentsHelper'
+import { ModelPaginatorContract } from '@ioc:Adonis/Lucid/Orm'
 
 export default abstract class RecipeHelper {
   public static async create (userId: User['id'],
@@ -30,28 +31,34 @@ export default abstract class RecipeHelper {
   { pageNumber: number, recipePerPage: number }, userId: User['id']){
     const recipes = (await Recipe.query().paginate(pageNumber, recipePerPage))
 
-    let totalPages = Math.round(((await Recipe.query().paginate(pageNumber, recipePerPage)).total)/recipePerPage)
-    totalPages= totalPages > 0 ? totalPages: 1
+    const totalPages = this.getTotalPages(recipes, recipePerPage)
 
     const allRecipeis = await this.formatMany(recipes, userId)
     return {allRecipeis, totalPages}
   }
 
-  public static async findAllUsersRecipesAndFormat (userId: User['id']) : Promise<Array<IformatedRecipe>> {
-    const recipes = await Recipe.query().where('user_id', '=', userId)
+  public static async findAllUsersRecipesAndFormat (userId: User['id'], {pageNumber, recipePerPage}:
+  { pageNumber: number, recipePerPage: number }){
+    const recipes = await Recipe.query().where('user_id', '=', userId).paginate(pageNumber, recipePerPage)
+
+    const totalPages = this.getTotalPages(recipes, recipePerPage)
+
     const formatedRecipes = await this.formatMany(recipes, userId)
-    return formatedRecipes
+    return {formatedRecipes, totalPages}
   }
 
-  public static async findAllUsersFavoriteRecipesAndFormat (userId: User['id']) : Promise<IformatedRecipe[]>{
+  public static async findAllUsersFavoriteRecipesAndFormat (userId: User['id'], {pageNumber, recipePerPage}:
+  { pageNumber: number, recipePerPage: number }){
     await User.findByOrFail('id', userId)
     const favoriteRecipes = await Recipe.query().whereHas('FavoriteRecipes', (recipesQuery) => {
       recipesQuery.where('userId', userId)
-    })
+    }).paginate(pageNumber, recipePerPage)
+
+    const totalPages = this.getTotalPages(favoriteRecipes, recipePerPage)
 
     const formatedRecipes = (await this.formatMany(favoriteRecipes, userId))!
 
-    return formatedRecipes
+    return {formatedRecipes, totalPages}
   }
 
   public static async findRecipeById (id: Recipe['id'], userId: User['id']): Promise<IformatedRecipe | null> {
@@ -122,5 +129,12 @@ export default abstract class RecipeHelper {
       allRecipeis.push(formatedRecipe)
     }
     return allRecipeis
+  }
+
+  private static getTotalPages (recipes: ModelPaginatorContract<Recipe>, recipePerPage: number) {
+    const totalRecipes = recipes.total
+    const totalPages = totalRecipes % recipePerPage > 0 ?
+      Math.floor(totalRecipes / recipePerPage) + 1 : Math.floor(totalRecipes / recipePerPage)
+    return totalPages
   }
 }

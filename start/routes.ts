@@ -27,8 +27,8 @@ Route.group(()=> {
     Route.post('/users/logout', 'UsersController.logout')
     Route.resource('/recipes', 'RecipesController').apiOnly()
     Route.post('/paginate', 'RecipesController.paginatedIndex')
-    Route.get('/user-recipes', 'RecipesController.showUsersOnly')
-    Route.get('/user-favorite-recipes', 'RecipesController.showUsersFavoriteRecipes')
+    Route.post('/user-recipes', 'RecipesController.showUsersOnly')
+    Route.post('/user-favorite-recipes', 'RecipesController.showUsersFavoriteRecipes')
 
     Route.post('/like/:id', 'InteractionsController.like')
     Route.post('/favorite/:id', 'InteractionsController.favorite')

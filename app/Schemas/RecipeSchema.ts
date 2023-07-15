@@ -9,7 +9,7 @@ export default abstract class RecipeSchema {
     ingredients: schema.string({trim: true}),
     image: schema.file({
       size: '5mb',
-      extnames: ['jpg', 'png'],
+      extnames: ['jpg', 'png', 'jpeg'],
     }),
   })
 

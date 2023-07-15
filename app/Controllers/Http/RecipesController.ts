@@ -37,18 +37,20 @@ export default class RecipesController {
     return recipe
   }
 
-  public async showUsersOnly ({auth}: HttpContextContract){
+  public async showUsersOnly ({request, auth}: HttpContextContract){
     const {id: userId} = auth.user!
 
-    const allRecipes = await RecipeHelper.findAllUsersRecipesAndFormat(userId)
+    const validatedPagination = await RecipeSchema.validatePagination(request)
+    const allRecipes = await RecipeHelper.findAllUsersRecipesAndFormat(userId, validatedPagination)
 
     return allRecipes
   }
 
-  public async showUsersFavoriteRecipes ({auth}: HttpContextContract){
+  public async showUsersFavoriteRecipes ({request, auth}: HttpContextContract){
     const {id: userId} = auth.user!
 
-    const favoriteRecipes = await RecipeHelper.findAllUsersFavoriteRecipesAndFormat(userId)
+    const validatedPagination = await RecipeSchema.validatePagination(request)
+    const favoriteRecipes = await RecipeHelper.findAllUsersFavoriteRecipesAndFormat(userId, validatedPagination)
 
     return favoriteRecipes
   }
