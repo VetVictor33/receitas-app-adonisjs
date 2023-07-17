@@ -112,7 +112,7 @@
 
 ### Paginando receitas
 
->POST `/api/recipes/paginate`
+>POST `/api/paginate`
 
 -Exemplo de entrada:
 
@@ -125,13 +125,13 @@
 
 ### Listando receitas criadas pelo usuário
 
->GET `/api/recipes/user-recipes`
+>GET `/api/user-recipes`
 
 -Retorno esperado: array de receitas
 
 ### Listando receitas favoritadas pelo usuário
 
->GET `/api/recipes/user-favorite-recipes`
+>GET `/api/user-favorite-recipes`
 
 -Retorno: idem anterior
 
@@ -151,7 +151,7 @@
 
 ### Criando comentário em receita
 
->POST `/api/recipes/comment/:recipeId`
+>POST `/api/comment/:recipeId`
 
 - Entrada esperada:
 
@@ -179,13 +179,13 @@
 
 ### Apagando comentário de receita
 
->DELETE `/api/recipes/comment/:recipeId/commentId`
+>DELETE `/api/comment/:recipeId/commentId`
 
 ### Curtindo/Descurtindo receita
 
->POST `/api/recipes/like/:recipeId`
+>POST `/api/like/:recipeId`
 >
->DELETE `/api/recipes/unlike/:recipeId`
+>DELETE `/api/unlike/:recipeId`
 
 - Retorno esperado: quantidade de curtidas após a interação
 
@@ -197,9 +197,9 @@
 
 ### Favoritando/Desfavoritando receita
 
->POST `/api/recipes/favorite/:recipeId`
+>POST `/api/favorite/:recipeId`
 >
->DELETE `/api/recipes/unfavorite/:recipeId`
+>DELETE `/api/unfavorite/:recipeId`
 
 - Retorno esperado: idem ao anterior
 
