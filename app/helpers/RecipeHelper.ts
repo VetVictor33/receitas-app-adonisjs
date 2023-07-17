@@ -9,7 +9,6 @@ import UserHelper from './UserHelper'
 import InteractionsHelper from './InteractionsHelper'
 import CommentsHelper from './CommentsHelper'
 import { ModelPaginatorContract } from '@ioc:Adonis/Lucid/Orm'
-import { SimplePaginatorContract } from '@ioc:Adonis/Lucid/Database'
 
 export default abstract class RecipeHelper {
   public static async create(userId: User['id'],
@@ -30,11 +29,7 @@ export default abstract class RecipeHelper {
 
   public static async findAllRecipesAndFormat({ pageNumber, recipePerPage }:
     { pageNumber: number, recipePerPage: number }, userId: User['id']) {
-    const recipes = ((await Recipe.query().paginate(pageNumber, recipePerPage)).sort((recipeA, recipeB) => {
-      const recipeATimestap = new Date(recipeA.createdAt.toString()).getTime()
-      const recipeBTimestap = new Date(recipeB.createdAt.toString()).getTime()
-      return recipeBTimestap - recipeATimestap
-    }))
+    const recipes = (await Recipe.query().orderBy('created_at', 'desc').paginate(pageNumber, recipePerPage))
 
     const totalPages = this.getTotalPages(recipes, recipePerPage)
 
@@ -44,12 +39,8 @@ export default abstract class RecipeHelper {
 
   public static async findAllUsersRecipesAndFormat(userId: User['id'], { pageNumber, recipePerPage }:
     { pageNumber: number, recipePerPage: number }) {
-    const recipes = (await Recipe.query().where('user_id', '=', userId).paginate(pageNumber, recipePerPage))
-      .sort((recipeA, recipeB) => {
-        const recipeATimestap = new Date(recipeA.createdAt.toString()).getTime()
-        const recipeBTimestap = new Date(recipeB.createdAt.toString()).getTime()
-        return recipeBTimestap - recipeATimestap
-      })
+    const recipes = (await Recipe.query().where('user_id', '=', userId)
+      .orderBy('created_at', 'desc').paginate(pageNumber, recipePerPage))
 
     const totalPages = this.getTotalPages(recipes, recipePerPage)
 
@@ -62,11 +53,7 @@ export default abstract class RecipeHelper {
     await User.findByOrFail('id', userId)
     const favoriteRecipes = (await Recipe.query().whereHas('FavoriteRecipes', (recipesQuery) => {
       recipesQuery.where('userId', userId)
-    }).paginate(pageNumber, recipePerPage)).sort((recipeA, recipeB) => {
-      const recipeATimestap = new Date(recipeA.createdAt.toString()).getTime()
-      const recipeBTimestap = new Date(recipeB.createdAt.toString()).getTime()
-      return recipeBTimestap - recipeATimestap
-    })
+    }).orderBy('created_at', 'desc').paginate(pageNumber, recipePerPage))
 
     const totalPages = this.getTotalPages(favoriteRecipes, recipePerPage)
 
@@ -151,7 +138,7 @@ export default abstract class RecipeHelper {
     return allRecipeis
   }
 
-  private static getTotalPages(recipes: SimplePaginatorContract<Recipe>, recipePerPage: number) {
+  private static getTotalPages(recipes: ModelPaginatorContract<Recipe>, recipePerPage: number) {
     const totalRecipes = recipes.total
     const totalPages = totalRecipes % recipePerPage > 0 ?
       Math.floor(totalRecipes / recipePerPage) + 1 : Math.floor(totalRecipes / recipePerPage)
