@@ -5,7 +5,7 @@ export default abstract class UserSchema {
   private static SignupSchema = schema.create({
     username: schema.string({ trim: true }, [
       rules.alphaNum({
-        allow: [ 'underscore', 'dash'],
+        allow: ['underscore', 'dash'],
       }),
     ]),
     email: schema.string({ trim: true }, [
@@ -24,12 +24,12 @@ export default abstract class UserSchema {
     ]),
   })
 
-  public static async validadeSignup (request: HttpContextContract['request']) {
+  public static async validadeSignup(request: HttpContextContract['request']) {
     const validation = await request.validate({
       schema: this.SignupSchema,
       messages: {
         'username.required': 'Por favor, informe o campo username',
-        'username.alphaNum': 'Por favor, utilize apenas letras, números, underscore e travessão',
+        'username.alphaNum': 'Por favor, utilize apenas letras, números, underscore e travessão como username',
         'email.required': 'Por favor, informe o campo email',
         'email.email': 'Por favor, informe um email com formato válido',
         'password.required': 'Por favor, informe o campo password',
@@ -38,7 +38,7 @@ export default abstract class UserSchema {
     })
     return validation
   }
-  public static async validadeLogin (request: HttpContextContract['request']) {
+  public static async validadeLogin(request: HttpContextContract['request']) {
     const validation = await request.validate({
       schema: this.LoginSchema,
       messages: {
