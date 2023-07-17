@@ -3,10 +3,10 @@ import { schema, rules } from '@ioc:Adonis/Core/Validator'
 
 export default abstract class RecipeSchema {
   private static creationSchema = schema.create({
-    categoryName: schema.string({ trim: true}),
+    categoryName: schema.string({ trim: true }),
     title: schema.string({ trim: true }),
     description: schema.string({ trim: true }),
-    ingredients: schema.string({trim: true}),
+    ingredients: schema.string({ trim: true }),
     image: schema.file({
       size: '5mb',
       extnames: ['jpg', 'png', 'jpeg'],
@@ -22,7 +22,7 @@ export default abstract class RecipeSchema {
     ]),
   })
 
-  public static async validateCreation (request: HttpContextContract['request']) {
+  public static async validateCreation(request: HttpContextContract['request']) {
     const validation = await request.validate({
       schema: this.creationSchema,
       messages: {
@@ -31,12 +31,14 @@ export default abstract class RecipeSchema {
         'description.required': 'Por favor, informe o campo description',
         'ingredients.required': 'Por favor, informe o campo ingredientes, cada ingrediente deve ser separado por ,',
         'image.required': 'Por favor, forneça uma imagem',
+        'image.file.size': 'O arquivo deve ter no máximo 5mb',
+        'image.file.extnames': 'O arquivo deve ter formato jpg, png ou jpeg',
       },
     })
     return validation
   }
 
-  public static async validatePagination (request: HttpContextContract['request']) {
+  public static async validatePagination(request: HttpContextContract['request']) {
     const validation = await request.validate({
       schema: this.paginationSchema,
       messages: {

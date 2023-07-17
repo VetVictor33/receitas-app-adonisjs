@@ -19,9 +19,7 @@ export default abstract class UserSchema {
     email: schema.string({ trim: true }, [
       rules.email(),
     ]),
-    password: schema.string({ trim: true }, [
-      rules.minLength(6),
-    ]),
+    password: schema.string(),
   })
 
   public static async validadeSignup(request: HttpContextContract['request']) {
