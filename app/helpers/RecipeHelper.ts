@@ -9,17 +9,18 @@ import UserHelper from './UserHelper'
 import InteractionsHelper from './InteractionsHelper'
 import CommentsHelper from './CommentsHelper'
 import { ModelPaginatorContract } from '@ioc:Adonis/Lucid/Orm'
+import { SimplePaginatorContract } from '@ioc:Adonis/Lucid/Database'
 
 export default abstract class RecipeHelper {
-  public static async create (userId: User['id'],
-    recipeData: IrecipeSchema, file: MultipartFileContract) : Promise<IformatedRecipe>{
-    const {image, categoryName, ingredients, ...validatedRecipeData} = recipeData
+  public static async create(userId: User['id'],
+    recipeData: IrecipeSchema, file: MultipartFileContract): Promise<IformatedRecipe> {
+    const { image, categoryName, ingredients, ...validatedRecipeData } = recipeData
 
     const category = await CategoryHelper.FindOrCreate(categoryName)
 
     const imageUrl = await UploadHelper.upload(file, 'recipes')
 
-    const newRecipe = await Recipe.create({...validatedRecipeData, userId, imageUrl, categoryId: category.id})
+    const newRecipe = await Recipe.create({ ...validatedRecipeData, userId, imageUrl, categoryId: category.id })
     await IngredientsHelper.createIngredients(ingredients, newRecipe.id)
 
     const formatedRecipe = this.formatOne(newRecipe, userId)
@@ -27,58 +28,71 @@ export default abstract class RecipeHelper {
     return formatedRecipe
   }
 
-  public static async findAllRecipesAndFormat ({pageNumber, recipePerPage}:
-  { pageNumber: number, recipePerPage: number }, userId: User['id']){
-    const recipes = (await Recipe.query().paginate(pageNumber, recipePerPage))
+  public static async findAllRecipesAndFormat({ pageNumber, recipePerPage }:
+    { pageNumber: number, recipePerPage: number }, userId: User['id']) {
+    const recipes = ((await Recipe.query().paginate(pageNumber, recipePerPage)).sort((recipeA, recipeB) => {
+      const recipeATimestap = new Date(recipeA.createdAt.toString()).getTime()
+      const recipeBTimestap = new Date(recipeB.createdAt.toString()).getTime()
+      return recipeBTimestap - recipeATimestap
+    }))
 
     const totalPages = this.getTotalPages(recipes, recipePerPage)
 
     const allRecipes = await this.formatMany(recipes, userId)
-    return {allRecipes, totalPages}
+    return { allRecipes, totalPages }
   }
 
-  public static async findAllUsersRecipesAndFormat (userId: User['id'], {pageNumber, recipePerPage}:
-  { pageNumber: number, recipePerPage: number }){
-    const recipes = await Recipe.query().where('user_id', '=', userId).paginate(pageNumber, recipePerPage)
+  public static async findAllUsersRecipesAndFormat(userId: User['id'], { pageNumber, recipePerPage }:
+    { pageNumber: number, recipePerPage: number }) {
+    const recipes = (await Recipe.query().where('user_id', '=', userId).paginate(pageNumber, recipePerPage))
+      .sort((recipeA, recipeB) => {
+        const recipeATimestap = new Date(recipeA.createdAt.toString()).getTime()
+        const recipeBTimestap = new Date(recipeB.createdAt.toString()).getTime()
+        return recipeBTimestap - recipeATimestap
+      })
 
     const totalPages = this.getTotalPages(recipes, recipePerPage)
 
     const allRecipes = await this.formatMany(recipes, userId)
-    return {allRecipes, totalPages}
+    return { allRecipes, totalPages }
   }
 
-  public static async findAllUsersFavoriteRecipesAndFormat (userId: User['id'], {pageNumber, recipePerPage}:
-  { pageNumber: number, recipePerPage: number }){
+  public static async findAllUsersFavoriteRecipesAndFormat(userId: User['id'], { pageNumber, recipePerPage }:
+    { pageNumber: number, recipePerPage: number }) {
     await User.findByOrFail('id', userId)
-    const favoriteRecipes = await Recipe.query().whereHas('FavoriteRecipes', (recipesQuery) => {
+    const favoriteRecipes = (await Recipe.query().whereHas('FavoriteRecipes', (recipesQuery) => {
       recipesQuery.where('userId', userId)
-    }).paginate(pageNumber, recipePerPage)
+    }).paginate(pageNumber, recipePerPage)).sort((recipeA, recipeB) => {
+      const recipeATimestap = new Date(recipeA.createdAt.toString()).getTime()
+      const recipeBTimestap = new Date(recipeB.createdAt.toString()).getTime()
+      return recipeBTimestap - recipeATimestap
+    })
 
     const totalPages = this.getTotalPages(favoriteRecipes, recipePerPage)
 
     const allRecipes = (await this.formatMany(favoriteRecipes, userId))!
 
-    return {allRecipes, totalPages}
+    return { allRecipes, totalPages }
   }
 
-  public static async findRecipeById (id: Recipe['id'], userId: User['id']): Promise<IformatedRecipe | null> {
+  public static async findRecipeById(id: Recipe['id'], userId: User['id']): Promise<IformatedRecipe | null> {
     const recipe = await Recipe.query().where('user_id', '=', userId).where('id', '=', id)
-    if(!recipe[0]) {
+    if (!recipe[0]) {
       return null
     }
     const formatedRecipe = this.formatOne(recipe[0], userId)
     return formatedRecipe
   }
 
-  public static async getRecipeTitle (id: Recipe['id']) : Promise<Recipe['title']> {
+  public static async getRecipeTitle(id: Recipe['id']): Promise<Recipe['title']> {
     const recipe = await Recipe.findByOrFail('id', id)
     return recipe.title
   }
 
-  public static async update (recipeId: Recipe['id'], newData: IrecipeSchema, userId: User['id']) {
+  public static async update(recipeId: Recipe['id'], newData: IrecipeSchema, userId: User['id']) {
     const recipeArray = await Recipe.query().where('user_id', '=', userId).where('id', '=', recipeId)
     const recipe = recipeArray[0]
-    if(!recipe) {
+    if (!recipe) {
       return null
     }
 
@@ -99,17 +113,17 @@ export default abstract class RecipeHelper {
     return formatedRecipe
   }
 
-  public static async delete (recipe_id: Recipe['id'], user_id: User['id']): Promise<void> {
+  public static async delete(recipe_id: Recipe['id'], user_id: User['id']): Promise<void> {
     const recipe = (await Recipe.query().where('user_id', '=', user_id).where('id', '=', recipe_id))
-    if(!recipe[0]){
+    if (!recipe[0]) {
       return
     }
     await UploadHelper.delete(recipe[0].imageUrl)
     await recipe[0].delete()
   }
 
-  private static async formatOne (recipe: Recipe, userId: User['id']): Promise<IformatedRecipe> {
-    const {id, title, description, imageUrl, createdAt, updatedAt, categoryId, userId: recipeOwnUserId} = recipe
+  private static async formatOne(recipe: Recipe, userId: User['id']): Promise<IformatedRecipe> {
+    const { id, title, description, imageUrl, createdAt, updatedAt, categoryId, userId: recipeOwnUserId } = recipe
     const ingredients = (await IngredientsHelper.getFormatedRecipeIngredients(recipe))!
     const category = (await CategoryHelper.findName(categoryId))!
     const userName = (await UserHelper.findName(recipeOwnUserId))!
@@ -121,12 +135,14 @@ export default abstract class RecipeHelper {
     const liked = (await InteractionsHelper.hasUserLiked(userId, recipe.id))!
     const favorited = (await InteractionsHelper.hasUserFavorited(userId, recipe.id))!
 
-    const formatedRecipe = {id, title, description, category, imageUrl, userName, ingredients,
-      metrics: {likes, favorites, comments, liked, favorited}, createdAt, updatedAt}
+    const formatedRecipe = {
+      id, title, description, category, imageUrl, userName, ingredients,
+      metrics: { likes, favorites, comments, liked, favorited }, createdAt, updatedAt
+    }
     return formatedRecipe
   }
 
-  private static async formatMany (recipeArray: Recipe[], userId: User['id']): Promise<Array<IformatedRecipe>> {
+  private static async formatMany(recipeArray: Recipe[], userId: User['id']): Promise<Array<IformatedRecipe>> {
     const allRecipeis: Array<IformatedRecipe> = []
     for (const recipe of recipeArray) {
       const formatedRecipe = await this.formatOne(recipe, userId)
@@ -135,7 +151,7 @@ export default abstract class RecipeHelper {
     return allRecipeis
   }
 
-  private static getTotalPages (recipes: ModelPaginatorContract<Recipe>, recipePerPage: number) {
+  private static getTotalPages(recipes: SimplePaginatorContract<Recipe>, recipePerPage: number) {
     const totalRecipes = recipes.total
     const totalPages = totalRecipes % recipePerPage > 0 ?
       Math.floor(totalRecipes / recipePerPage) + 1 : Math.floor(totalRecipes / recipePerPage)
