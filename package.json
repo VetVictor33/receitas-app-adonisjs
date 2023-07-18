@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "node ace serve --watch",
-    "build": "node ace build --production && node ace migration:run --force",
+    "build": "node ace build --production",
+    "migatrions": "node ace migration:run --force",
     "start": "node server.js",
     "test": "node ace test",
     "lint": "eslint . --ext=.ts"
