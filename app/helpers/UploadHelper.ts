@@ -10,7 +10,6 @@ export default abstract class UploadHelper {
     return imageUrl
   }
   public static async delete(fileUrl: string): Promise<void> {
-    const path = fileUrl.split('/uploads/')
-    await Drive.delete(path[1])
+    await Drive.delete(fileUrl)
   }
 }
