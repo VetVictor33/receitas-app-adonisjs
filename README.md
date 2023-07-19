@@ -4,7 +4,7 @@
 
  API que possibilita a criação de usuários os quais podem publicar receitas, comentá-las, curti-las e favoritá-las de forma a interagir com outros usuários.
 
-## Como utuliar?
+## Como utilizar?
 
 ### Criando um usuário
 
