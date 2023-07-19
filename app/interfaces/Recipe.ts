@@ -30,8 +30,8 @@ export interface IformatedRecipe {
     likes: any;
     favorites: any;
     comments: Array<any>;
-    liked: boolean,
-    favorited: boolean
+    liked: boolean | undefined,
+    favorited: boolean | undefined
   }
   createdAt: DateTime,
   updatedAt: DateTime

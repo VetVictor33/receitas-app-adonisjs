@@ -16,6 +16,12 @@ export default class RecipesController {
     return recipes
   }
 
+  public async paginatedNotLoggedIndex({ request }: HttpContextContract) {
+    const validatedPagination = await RecipeSchema.validatePagination(request)
+    const recipes = await RecipeHelper.findAllRecipesAndFormat(validatedPagination, undefined)
+    return recipes
+  }
+
   public async store({ request, auth, response }: HttpContextContract) {
     await auth.use('api').check()
     const { id: userId } = auth.user!

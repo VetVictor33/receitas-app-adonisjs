@@ -1,7 +1,7 @@
 import Comment from 'App/Models/Comment'
 import Recipe from 'App/Models/Recipe'
 import User from 'App/Models/User'
-import { IformatedComment } from 'App/intercafes/Comment'
+import { IformatedComment } from 'App/interfaces/Comment'
 import UserHelper from './UserHelper'
 import RecipeHelper from './RecipeHelper'
 

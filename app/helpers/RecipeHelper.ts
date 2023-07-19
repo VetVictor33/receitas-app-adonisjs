@@ -1,7 +1,7 @@
 import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
 import Recipe from 'App/Models/Recipe'
 import User from 'App/Models/User'
-import { IformatedRecipe, IrecipeSchema } from 'App/intercafes/Recipe'
+import { IformatedRecipe, IrecipeSchema } from 'App/interfaces/Recipe'
 import CategoryHelper from './CategoryHelper'
 import IngredientsHelper from './IngredientsHelper'
 import UploadHelper from './UploadHelper'
@@ -12,7 +12,7 @@ import { ModelPaginatorContract } from '@ioc:Adonis/Lucid/Orm'
 
 export default abstract class RecipeHelper {
   public static async create(userId: User['id'],
-    recipeData: IrecipeSchema, file: MultipartFileContract): Promise<IformatedRecipe> {
+    recipeData: IrecipeSchema, file: MultipartFileContract) {
     const { image, categoryName, ingredients, ...validatedRecipeData } = recipeData
 
     const category = await CategoryHelper.FindOrCreate(categoryName)
@@ -28,7 +28,7 @@ export default abstract class RecipeHelper {
   }
 
   public static async findAllRecipesAndFormat({ pageNumber, recipePerPage }:
-    { pageNumber: number, recipePerPage: number }, userId: User['id']) {
+    { pageNumber: number, recipePerPage: number }, userId: User['id'] | undefined) {
     const recipes = (await Recipe.query().orderBy('created_at', 'desc').paginate(pageNumber, recipePerPage))
 
     const totalPages = this.getTotalPages(recipes, recipePerPage)
@@ -109,7 +109,7 @@ export default abstract class RecipeHelper {
     await recipe[0].delete()
   }
 
-  private static async formatOne(recipe: Recipe, userId: User['id']): Promise<IformatedRecipe> {
+  private static async formatOne(recipe: Recipe, userId: User['id'] | undefined) {
     const { id, title, description, imageUrl, createdAt, updatedAt, categoryId, userId: recipeOwnUserId } = recipe
     const ingredients = (await IngredientsHelper.getFormatedRecipeIngredients(recipe))!
     const category = (await CategoryHelper.findName(categoryId))!
@@ -119,23 +119,31 @@ export default abstract class RecipeHelper {
     const favorites = (await InteractionsHelper.count('RecipeFavorite', id))
     const comments = (await CommentsHelper.getRecipeAllComments(id))
 
+    if (!userId) {
+      return {
+        id, title, description, category, imageUrl, userName, ingredients,
+        metrics: { likes, favorites, comments, liked: false, favorited: false }, createdAt, updatedAt,
+      }
+    }
+
     const liked = (await InteractionsHelper.hasUserLiked(userId, recipe.id))!
     const favorited = (await InteractionsHelper.hasUserFavorited(userId, recipe.id))!
 
     const formatedRecipe = {
       id, title, description, category, imageUrl, userName, ingredients,
-      metrics: { likes, favorites, comments, liked, favorited }, createdAt, updatedAt
+      metrics: { likes, favorites, comments, liked, favorited }, createdAt, updatedAt,
     }
     return formatedRecipe
   }
 
-  private static async formatMany(recipeArray: Recipe[], userId: User['id']): Promise<Array<IformatedRecipe>> {
-    const allRecipeis: Array<IformatedRecipe> = []
+  private static async formatMany(recipeArray: Recipe[], userId: User['id'] | undefined) {
+    const allRecipes: Array<IformatedRecipe> = []
+
     for (const recipe of recipeArray) {
       const formatedRecipe = await this.formatOne(recipe, userId)
-      allRecipeis.push(formatedRecipe)
+      allRecipes.push(formatedRecipe)
     }
-    return allRecipeis
+    return allRecipes
   }
 
   private static getTotalPages(recipes: ModelPaginatorContract<Recipe>, recipePerPage: number) {

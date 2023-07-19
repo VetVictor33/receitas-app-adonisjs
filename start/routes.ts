@@ -20,9 +20,10 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 
-Route.group(()=> {
+Route.group(() => {
   Route.post('/users/sign-up', 'UsersController.signup')
   Route.post('/users/login', 'UsersController.login')
+  Route.post('/not-logged-dashboard', 'RecipesController.paginatedNotLoggedIndex')
   Route.group(() => {
     Route.post('/users/logout', 'UsersController.logout')
     Route.resource('/recipes', 'RecipesController').apiOnly()
