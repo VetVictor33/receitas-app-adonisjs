@@ -6,7 +6,7 @@
     "dev": "node ace serve --watch",
     "build": "node ace build --production",
     "migrations": "node ace migration:run --force",
-    "start": "node server.js",
+    "start": "cd build && npm ci --production && node server.js",
     "test": "node ace test",
     "lint": "eslint . --ext=.ts"
   },
